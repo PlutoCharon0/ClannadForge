@@ -1,22 +1,44 @@
 {
 	"name": "clannad-forge",
+	"author": "PlutoCharon0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/PlutoCharon0/ClannadForge"
+	},
+	"keywords": [],
 	"description": "",
 	"private": "true",
 	"scripts": {
 		"format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
 		"lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
-		"prepare": "husky"
+		"prepare": "husky",
+		"commit": "git-cz",
+		"undo-commit": "git reset --soft HEAD~1"
 	},
-	"keywords": [],
-	"author": "",
+	"config": {
+		"commitizen": {
+			"path": "node_modules/cz-git"
+		}
+	},
+	"lint-staged": {
+		"*.{ts,tsx,js,jsx}": [
+			"prettier --check --write",
+			"eslint"
+		]
+	},
 	"license": "ISC",
 	"devDependencies": {
+		"@commitlint/cli": "^19.3.0",
+		"@commitlint/config-conventional": "^19.2.2",
 		"@eslint/js": "^9.2.0",
 		"@types/node": "^20.12.11",
+		"commitizen": "^4.3.0",
+		"cz-git": "^1.9.1",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"globals": "^15.1.0",
 		"husky": "^9.0.11",
+		"lint-staged": "^15.2.2",
 		"prettier": "3.2.5",
 		"turbo": "^1.13.3",
 		"typescript": "^5.4.5",
