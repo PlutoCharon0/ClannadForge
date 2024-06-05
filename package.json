@@ -9,8 +9,9 @@
 	"description": "",
 	"private": "true",
 	"scripts": {
+		"dev": "turbo dev",
 		"format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
-		"lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
+		"lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix --ignore-pattern packages/*/dist/",
 		"prepare": "husky",
 		"commit": "git-cz",
 		"undo-commit": "git reset --soft HEAD~1"
@@ -22,8 +23,8 @@
 	},
 	"lint-staged": {
 		"*.{ts,tsx,js,jsx}": [
-			"prettier --check --write",
-			"eslint"
+			"format",
+			"lint"
 		]
 	},
 	"license": "ISC",
@@ -31,6 +32,9 @@
 		"@commitlint/cli": "^19.3.0",
 		"@commitlint/config-conventional": "^19.2.2",
 		"@eslint/js": "^9.2.0",
+		"@rollup/plugin-node-resolve": "^15.2.3",
+		"@rollup/plugin-terser": "^0.4.4",
+		"@rollup/plugin-typescript": "^11.1.6",
 		"@types/node": "^20.12.11",
 		"commitizen": "^4.3.0",
 		"cz-git": "^1.9.1",
@@ -40,6 +44,8 @@
 		"husky": "^9.0.11",
 		"lint-staged": "^15.2.2",
 		"prettier": "3.2.5",
+		"rollup": "^4.18.0",
+		"rollup-plugin-delete": "^2.0.0",
 		"turbo": "^1.13.3",
 		"typescript": "^5.4.5",
 		"typescript-eslint": "^7.8.0"

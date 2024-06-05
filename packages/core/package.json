@@ -1,0 +1,25 @@
+{
+	"name": "core",
+	"version": "1.0.0",
+	"description": "",
+	"main": "./dist/index.js",
+	"scripts": {
+		"dev": "node dist/index.js",
+		"typecheck": "tsc --noEmit",
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/minimist": "^1.2.5",
+		"@types/prompts": "^2.4.9",
+		"chalk": "^4.1.2",
+		"cross-spawn": "^7.0.3",
+		"minimist": "^1.2.8",
+		"prompts": "^2.4.2"
+	},
+	"dependencies": {
+		"@clannadforage/utils": "^1.0.0"
+	}
+}

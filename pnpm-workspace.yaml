@@ -1,3 +1,3 @@
 packages:
-  - 'packages/*'
-  - 'apps/*'
+  - 'packages/*' # 工作空间
+  - 'apps/*' # 存放自定义模板的文件夹

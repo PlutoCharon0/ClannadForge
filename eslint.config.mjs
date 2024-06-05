@@ -10,25 +10,18 @@ export default [
 	// 自定义的ESLint规则
 	{
 		rules: {
+			// 配置使用any类型的警告
+			"@typescript-eslint/no-explicit-any": "warn",
 			// 确保数组方法回调函数有返回值
 			"array-callback-return": "warn",
 			// 避免在循环中使用`await`
 			"no-await-in-loop": "warn",
 			// 提示避免使用`console`语句
-			"no-console": "warn",
+			// "no-console": "warn",
 			// 强制使用let或const而非var
 			"no-var": "error",
 			// 建议使用剩余参数而非arguments对象
 			"prefer-rest-params": "error",
-			// 要求导入排序符合特定顺序
-			"sort-imports": [
-				"error",
-				{
-					memberSyntaxSortOrder: ["none", "all", "multiple", "single"],
-					// 允许分组后的导入保持分离
-					allowSeparatedGroups: true,
-				},
-			],
 			// 要求使用===和!==而非==和!=，但允许使用NaN比较
 			eqeqeq: ["error", "smart"],
 		},
