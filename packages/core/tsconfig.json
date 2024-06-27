@@ -1,11 +1,12 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "types": ["node"],
-    "target": "ESNext",
-    "moduleResolution": "node"
-  }
+	"extends": "../../tsconfig.json",
+	"include": ["src"],
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"types": ["node"],
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+	},
 }

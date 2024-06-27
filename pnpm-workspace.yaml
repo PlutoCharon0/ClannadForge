@@ -1,3 +1,4 @@
 packages:
   - 'packages/*' # 工作空间
   - 'apps/*' # 存放自定义模板的文件夹
+  - 'clannad-project'

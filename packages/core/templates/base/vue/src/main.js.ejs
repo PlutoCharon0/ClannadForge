@@ -1,0 +1,23 @@
+import { createApp } from 'vue'
+<%_ for (const { importer, id } of plugins) { _%>
+<% if (usePinia && id === 'pinia') { %>
+<%- importer %>
+<% } %>
+<% if (useVueRouter && id === 'vue-router') { %>
+<%- importer %>
+<% } %>
+<%_ } _%>
+
+import App from './App.vue'
+
+const app = createApp(App)
+
+<% if (usePinia) { %>
+app.use(createPinia())
+<% } %>
+
+<% if (useVueRouter) { %>
+app.use(router)
+<% } %>
+
+app.mount('#app')

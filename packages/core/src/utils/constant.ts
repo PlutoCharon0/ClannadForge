@@ -167,6 +167,65 @@ function getTemplate(projectType: ProjectType) {
 		.reduce((a, b) => a.concat(b), []);
 }
 
+// TODO 完善类型声明
+const CUSTOM_GENERATE_CONFIGS = [
+	{
+		framework: "vue",
+		configs: [
+			{
+				name: "@vitejs/plugin-vue-jsx",
+				display: "Jsx",
+				color: colors.random,
+				default: true,
+				handleConfig: true,
+				version: "^4.0.0",
+				isDev: true,
+				ejsData: {
+					name: "vueJsx",
+					importer: "import vueJsx from '@vitejs/plugin-vue-jsx'",
+					initializer: "vueJsx()",
+				},
+			},
+			{
+				name: "vue-router",
+				display: "Router",
+				color: colors.random,
+				version: "^4.3.3",
+			},
+			{
+				name: "pinia",
+				display: "Pinia",
+				color: colors.random,
+				version: "^2.1.7",
+			},
+		],
+	},
+	{
+		framework: "react",
+		configs: [
+			{
+				name: "ts",
+				display: "Typescript",
+				color: colors.random,
+			},
+			{
+				name: "js",
+				display: "Javascript",
+				color: colors.random,
+			},
+			{
+				name: "router",
+				display: "Router",
+				color: colors.random,
+			},
+		],
+	},
+];
+
+function getCustomConfig(framework: string) {
+	return CUSTOM_GENERATE_CONFIGS.find((item) => item.framework === framework);
+}
+
 export {
 	colors,
 	WEB_FRAMEWORKS,
@@ -175,4 +234,5 @@ export {
 	projectTypeMap,
 	getTemplate,
 	getFramework,
+	getCustomConfig,
 };

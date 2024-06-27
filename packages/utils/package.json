@@ -2,12 +2,13 @@
 	"name": "@clannadforage/utils",
 	"version": "1.0.0",
 	"description": "",
-	"main": "./dist/index.cjs.js",
-	"module": "./dist/index.esm.js",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
 	"scripts": {
 		"build": "rollup -c --bundleConfigAsCjs",
-		"dev": "rollup -c -w --bundleConfigAsCjs"
+		"dev": "rollup -c -w --bundleConfigAsCjs",
+		"esbuild": "node build.mjs && tsc"
 	},
 	"keywords": [],
 	"author": "",

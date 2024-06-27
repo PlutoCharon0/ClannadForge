@@ -1,0 +1,19 @@
+import { defineConfig } from 'vite'
+import { fileURLToPath } from "url";
+<%_ for (const { importer } of plugins) { _%>
+<%- importer %>
+<%_ } _%>
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+  <%_ for (const { initializer } of plugins) { _%>
+    <%- initializer _%>,
+  <%_ } _%>
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
+})

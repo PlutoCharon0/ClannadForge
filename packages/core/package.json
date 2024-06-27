@@ -1,12 +1,17 @@
 {
-	"name": "core",
+	"name": "create-clannad",
 	"version": "1.0.0",
 	"description": "",
-	"main": "./dist/index.js",
+	"main": "dist/index.cjs",
+	"type": "module",
 	"scripts": {
-		"dev": "node dist/index.js",
+		"dev": "node dist/index.cjs",
 		"typecheck": "tsc --noEmit",
-		"build": "tsc"
+		"build": "tsc",
+		"esbuild": "node src/scripts/build.mjs"
+	},
+	"bin": {
+		"create-clannad": "dist/index.cjs"
 	},
 	"keywords": [],
 	"author": "",
@@ -15,7 +20,9 @@
 		"@types/minimist": "^1.2.5",
 		"@types/prompts": "^2.4.9",
 		"chalk": "^4.1.2",
+		"commander": "^12.1.0",
 		"cross-spawn": "^7.0.3",
+		"ejs": "^3.1.10",
 		"minimist": "^1.2.8",
 		"prompts": "^2.4.2"
 	},

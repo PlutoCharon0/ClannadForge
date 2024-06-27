@@ -1,5 +1,6 @@
 {
 	"extends": "../../tsconfig.json",
+	"include": ["src"],
 	"compilerOptions": {
 		"outDir": "dist",
 		"target": "es2015",
@@ -9,6 +10,5 @@
 		"noEmit": false,
 		"emitDeclarationOnly": true,
 	},
-	"include": ["src"],
-	"exclude": ["node_modules"]
+
 }

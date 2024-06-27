@@ -1,4 +1,4 @@
-{
+/* {
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"allowUnreachableCode": false, // 报告执行不到的代码错误
@@ -31,4 +31,16 @@
 	},
 	"include": ["packages"],
 	"exclude": ["node_modules", "apps"]
+}
+ */
+{
+	"extends": "@tsconfig/node20/tsconfig.json",
+	"include": ["packages"],
+	"exclude": ["node_modules", "apps"],
+	"compilerOptions": {
+		"strict": false,
+		"resolveJsonModule": true,
+		"moduleResolution": "Bundler",
+		"module": "ESNext"
+	}
 }
