@@ -24,8 +24,8 @@ export async function create(
 	argTargetDir: string,
 	options: Record<string, any>,
 ) {
-	const { template: argTemplate, force } = options;
-
+	const { template: argTemplate, force, mode: usageMode } = options;
+	console.log(options, "options", UsageMode);
 	// 获取用户指定的目标目录
 	let targetDir = argTargetDir || defaultTargetDir;
 	// 获取项目名称 若当前项目目录参数为 .则将项目创建在当前命令执行目录下
@@ -247,4 +247,17 @@ export async function create(
 	*/
 }
 
-// TODO! 设计构建渐进式构建模式的展开逻辑  完善package.json操作类的设计构建
+/* Q
+		1. 通用模式的模板内容不完善 （考虑使用场景： 贴近对应的开发场景展开构建 / 针对通用性去展开构建）
+		2. 通用模式的模板存储/拉取方式待完善 (目前仅支持同存储目录下运行，一旦换个地址执行脚手架找不到模板获取。考虑多模板的情况)
+		3. 渐进式构建的基础模板存储设计待完善 (考虑多模板的情况)
+		4. 目前渐进式构建的方式是通过ejs模板引擎展开的 在基础模板中需要涉及数据驱动的则构建相应的ejs模板
+		   需要的相关数据则存储在.mjs文件中 对外暴露一个getData函数 在generator执行时，渲染基础模板的过程中，读取.mjs文件获取函数。
+			 把函数放入到一个Cb中（文件读取异步展开）
+			 当基础模板内容渲染完毕后，展开ejs模板的渲染。在此之前,调用Cb中存储的函数，获取相应的ejs模板数据。而后正式展开ejs的相关渲染
+		（考虑：后续进行其他项目的渐进式构建时，基础模板的设计是否都按照这个方式）
+		5. （通用模式）针对模板的存储方式 考虑是否需要将模板存储在远程仓库中？ 通过down-git-repo去拉取模板
+		存在问题：该库不支持直接读取指定仓库的指定文件目录内容
+		设计：创建一个仓库Clannad_templates 单独存储所有的模板文件 以分支的形式去区分不同的模板
+		构建测试项目测试
+*/
