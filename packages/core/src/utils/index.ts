@@ -1,6 +1,5 @@
 import spawn from "cross-spawn";
 import { pkgFromUserAgent } from "@clannadforage/utils";
-export * from "./prompts";
 function getUserLocalPkgManager() {
 	// 获取用户系统版本/包管理工具的版本信息 例：pnpm/9.0.2 npm/? node/v20.9.0 win32 x64
 	const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent);
@@ -11,7 +10,6 @@ function getUserLocalPkgManager() {
 		pkgManager,
 	};
 }
-//  TODO 执行自定义命令时 配置过渡加载效果
 function handleCustomCommand(customCommand: string, targetDir: string) {
 	// 获取包管理工具
 	const { pkgInfo, pkgManager } = getUserLocalPkgManager();
@@ -59,9 +57,6 @@ function handleCustomCommand(customCommand: string, targetDir: string) {
 		// 退出当前进程，状态码为1执行命令的结果状态码（若未提供则默认为0）
 		process.exit(status ?? 0);
 	}
-	return {
-		pkgManager,
-	};
 }
 
 export { handleCustomCommand, getUserLocalPkgManager };

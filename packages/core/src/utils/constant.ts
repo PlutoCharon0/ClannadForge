@@ -45,7 +45,7 @@ const colors = {
 	success: createColorFunc("#b5fefb"),
 	random: createColorFunc("", "rgb"),
 };
-
+// 注意：模板命名需要与GitHub模板存储仓库一致
 // Web-模板集合
 const WEB_FRAMEWORKS: Framework[] = [
 	{

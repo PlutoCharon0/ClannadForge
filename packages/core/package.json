@@ -28,6 +28,7 @@
 		"prompts": "^2.4.2"
 	},
 	"dependencies": {
-		"@clannadforage/utils": "^1.0.0"
+		"@clannadforage/utils": "^1.0.0",
+		"download-git-repo": "^3.0.2"
 	}
 }

@@ -1,45 +1,91 @@
-import path from "path";
-import fs from "fs";
-import { ProjectType, UsageMode } from "../types";
-import { handleCustomCommand } from ".";
+import spawn from "cross-spawn";
+import download from "download-git-repo";
+import { pkgFromUserAgent } from "@clannadforage/utils";
 import { getFramework } from "./constant";
-import Generator from "../models/Generator";
-function getTemplateDir(projectType: ProjectType, template: string, cwd) {
-	// 定义项目类型与对应模板目录的映射关系
-	const templateDirMap = {
-		[ProjectType.WEB]: "web",
-		[ProjectType.UI_LIBRARY]: "ui-library",
-		[ProjectType.STATIC_SITE]: "static-site",
+import { Generator, PackageJsonManager } from "../models";
+import { ProjectType, SpecificResponse, UsageMode } from "../types";
+
+type Options = {
+	root?: string;
+	Pkg?: PackageJsonManager;
+	argTemplate?: string;
+	targetDir?: string;
+};
+function downloadTemplate(...args) {
+	const [dir, root] = args;
+	return new Promise((resolve, reject) => {
+		download(dir, root, (err) => {
+			if (err) reject(err);
+			resolve({ code: 200 });
+		});
+	});
+}
+
+function getUserLocalPkgManager() {
+	// 获取用户系统版本/包管理工具的版本信息 例：pnpm/9.0.2 npm/? node/v20.9.0 win32 x64
+	const pkgInfo = pkgFromUserAgent(process.env.npm_config_user_agent);
+	// 获取包管理工具
+	const pkgManager = pkgInfo ? pkgInfo.name : "npm";
+	return {
+		pkgInfo,
+		pkgManager,
 	};
-	// 根据项目类型从映射中获取模板目录，结合当前工作目录和模板名称，计算出绝对路径
-	return path.resolve(
-		cwd,
-		`apps/${templateDirMap[projectType]}`,
-		`template-${template}`,
-	);
 }
-function renderTemplate(src, dest, pkg) {
-	const stats = fs.statSync(src); // fs.statSync() 用于检查文件/目录的详细状态信息 例如文件大小、修改时间、是否为目录等）
-	if (stats.isDirectory()) {
-		fs.mkdirSync(dest, { recursive: true });
-		for (const file of fs.readdirSync(src)) {
-			renderTemplate(path.resolve(src, file), path.resolve(dest, file), pkg);
-		}
-		return;
-	}
-	const filename = path.basename(src);
+function handleCustomCommand(customCommand: string, targetDir: string) {
+	// 获取包管理工具
+	const { pkgInfo, pkgManager } = getUserLocalPkgManager();
+	// 判断Yarn的版本
+	const isYarn1 = pkgManager === "yarn" && pkgInfo?.version.startsWith("1.");
+	if (customCommand) {
+		// customCommand: npm create vue@latest TARGET_DIR
+		const fullCustomCommand = customCommand
+			.replace(/^npm create /, () => {
+				// 对于 `bun` 包管理工具，使用 `bun x create-` 替换，因为它有自己的模板集
+				if (pkgManager === "bun") {
+					return "bun x create-";
+				}
+				return `${pkgManager} create `;
+			})
+			// 对于仅 Yarn 1.x 不支持在 `create` 命令中使用 `@version` 的情况，进行相应处理
+			.replace("@latest", () => (isYarn1 ? "" : "@latest"))
+			.replace(/^npm exec/, () => {
+				/// 优先使用 `pnpm dlx`、`yarn dlx` 或 `bun x` 执行命令
+				if (pkgManager === "pnpm") {
+					return "pnpm dlx";
+				}
+				if (pkgManager === "yarn" && !isYarn1) {
+					return "yarn dlx";
+				}
+				if (pkgManager === "bun") {
+					return "bun x";
+				}
+				// 对于其他情况（包括 Yarn 1.x 和其他自定义 npm 客户端），使用 `npm exec` 执行命令
+				return "npm exec";
+			});
 
-	if (filename === "package.json") {
-		const basePkg = pkg.readPKG_Content_path(src);
-		Object.assign(basePkg, { name: pkg.content.name });
-		return;
+		// 分解命令行参数
+		const [command, ...args] = fullCustomCommand.split(" ");
+		// 示例： pnpm [ 'create', 'vue@latest', 'TARGET_DIR' ]
+		// command代表 包管理器 args存储着命令项参数
+		//  将 `TARGET_DIR` 占位符替换为目标目录（考虑可能包含空格的情况）
+		const replacedArgs = args.map((arg) =>
+			arg.replace("TARGET_DIR", targetDir),
+		);
+		// spawn.sync 开启一个子进程执行自定义安装命令
+		const { status } = spawn.sync(command, replacedArgs, {
+			stdio: "inherit",
+		});
+		// 退出当前进程，状态码为1执行命令的结果状态码（若未提供则默认为0）
+		process.exit(status ?? 0);
 	}
-
-	fs.copyFileSync(src, dest);
 }
-function handle_universalModel(promptsResults, options) {
+function handle_universalModel(
+	promptsResults: SpecificResponse,
+	options: Options,
+) {
+	// TODO SWC的处理
 	const { framework, variant, projectType } = promptsResults;
-	const { root, cwd, argTemplate, targetDir, Pkg } = options;
+	const { root, argTemplate, targetDir, Pkg } = options;
 	// 根据参数优先级 确定最终选择的模板
 	const template: string = variant || framework?.name || argTemplate;
 	// 获取自定义模板安装指令
@@ -47,32 +93,34 @@ function handle_universalModel(promptsResults, options) {
 		getFramework(projectType)
 			.flatMap((f) => f.variants)
 			.find((v) => v.name === template) ?? {};
-	/* // 判断是否开启SWC  TODO SWC的配置待完善 在vite的实现基础下 完善
-  let isReactSwc = false;
-  if (universalMode && template.includes("-swc")) {
-    isReactSwc = true;
-    template = template.replace("-swc", "");
-  } */
 
 	// 判断是否存在自定义模板安装指令 根据用户的包管理工具来判断用于安装模板的包类型 并展开安装
 	handleCustomCommand(customCommand, targetDir);
 
-	// 获取模板存储地址
-	const templateDir = getTemplateDir(projectType, template, cwd);
-	renderTemplate(templateDir, root, Pkg);
-
-	/* // 对SWC进行额外处理 TODO 待完善
-  if (isReactSwc) {
-    setupReactSwc(root, template.endsWith("-ts"));
-  } */
+	const templateDirMap = {
+		[ProjectType.WEB]: "web",
+		[ProjectType.UI_LIBRARY]: "ui-library",
+		[ProjectType.STATIC_SITE]: "static-site",
+	};
+	const templateDir = `https://github.com:PlutoCharon0/ClannadForage_templates#${templateDirMap[projectType]}_${template}`;
+	downloadTemplate(templateDir, root).then(() => {
+		const templatePkgContent = Pkg.readPKG_Content_path(Pkg.path);
+		const packageName = Pkg.content.name;
+		Pkg.updatePKG_Content(templatePkgContent)
+			.updatePKG_SingleField("name", packageName)
+			.createPKG_File();
+	});
 }
 
-function handle_customMode(promptsResults, options) {
+function handle_customMode(promptsResults: SpecificResponse, options: Options) {
 	const { root, Pkg } = options;
 	const generator = new Generator(root, Pkg, promptsResults);
 	generator.generate();
 }
-function handle_externalLinksMode(promptsResults, options) {
+function handle_externalLinksMode(
+	promptsResults: SpecificResponse,
+	options: Options,
+) {
 	const { cliType } = promptsResults;
 	const { targetDir } = options;
 	handleCustomCommand(cliType, targetDir);
@@ -82,26 +130,3 @@ export const handleFnMap = new Map([
 	[UsageMode.CUSTOMMODE, handle_customMode],
 	[UsageMode.EXTERNALLINKSMODE, handle_externalLinksMode],
 ]);
-
-/* function setupReactSwc(root: string, isTs: boolean) {
-	editFile(path.resolve(root, "package.json"), (content) => {
-		return content.replace(
-			/"@vitejs\/plugin-react": ".+?"/,
-			`"@vitejs/plugin-react-swc": "^3.5.0"`,
-		);
-	});
-	editFile(
-		path.resolve(root, `vite.config.${isTs ? "ts" : "js"}`),
-		(content) => {
-			return content.replace(
-				"@vitejs/plugin-react",
-				"@vitejs/plugin-react-swc",
-			);
-		},
-	);
-}
-function editFile(file: string, callback: (content: string) => string) {
-	const content = fs.readFileSync(file, "utf-8");
-	fs.writeFileSync(file, callback(content), "utf-8");
-}
- */

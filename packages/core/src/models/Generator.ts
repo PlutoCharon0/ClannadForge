@@ -1,11 +1,11 @@
-import path from "path";
 import fs from "fs";
+import path from "path";
+import { pathToFileURL } from "url";
 import ejs from "ejs";
 import { SpecificResponse } from "../types";
-import PackageJsonManager from "./PkgManager";
-import { pathToFileURL } from "url";
+import { PackageJsonManager } from "./PkgManager";
 // TODO 完善类型提示 完事过渡效果提示
-export default class Generator {
+export class Generator {
 	private root: string;
 	public Pkg: PackageJsonManager;
 	private promptsResults: SpecificResponse;
@@ -24,7 +24,7 @@ export default class Generator {
 		this.promptsResults = promptsResults;
 		this.templateDir = path.resolve(
 			__dirname,
-			`../../core/templates/base/${promptsResults.framework}`,
+			`../../core/templates/base-${promptsResults.framework}`,
 		);
 		this.ejsTemplates = new Map();
 		this.ejsDatas = new Map();
@@ -117,11 +117,11 @@ export default class Generator {
 				});
 			}
 			if (config.isDev) {
-				this.Pkg.updatePKG_Content_filed("devDependencies", {
+				this.Pkg.updatePKG_SingleField("devDependencies", {
 					[config.name]: config.version,
 				});
 			} else {
-				this.Pkg.updatePKG_Content_filed("dependencies", {
+				this.Pkg.updatePKG_SingleField("dependencies", {
 					[config.name]: config.version,
 				});
 			}

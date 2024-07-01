@@ -6,4 +6,5 @@ await esbuild.build({
 	outfile: "dist/index.cjs",
 	format: "cjs",
 	platform: "node",
+	external: ["electron"],
 });

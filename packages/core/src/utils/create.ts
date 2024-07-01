@@ -3,8 +3,8 @@ import path from "path";
 import fs from "fs";
 import prompts from "prompts";
 import { colors } from "./constant";
-import { getPrompts } from ".";
-import PackageJsonManager from "../models/PkgManager";
+import { getPrompts } from "./prompts";
+import { PackageJsonManager } from "../models";
 import { handleFnMap } from "./handleFn";
 import {
 	emptyDir,
@@ -24,8 +24,7 @@ export async function create(
 	argTargetDir: string,
 	options: Record<string, any>,
 ) {
-	const { template: argTemplate, force, mode: usageMode } = options;
-	console.log(options, "options", UsageMode);
+	const { template: argTemplate, force, mode } = options;
 	// 获取用户指定的目标目录
 	let targetDir = argTargetDir || defaultTargetDir;
 	// 获取项目名称 若当前项目目录参数为 .则将项目创建在当前命令执行目录下
@@ -34,7 +33,6 @@ export async function create(
 
 	// TODO 配置默认配置
 	let basePrompts_result: BaseResponse;
-	let specificPrompts_result: SpecificResponse;
 
 	// basePrompts
 	try {
@@ -82,7 +80,7 @@ export async function create(
 					},
 				},
 				{
-					type: "select",
+					type: () => (mode ? null : "select"),
 					name: "usageMode",
 					message: brighten("Select the usage mode you expect"),
 					choices: [
@@ -129,31 +127,13 @@ export async function create(
 		}
 		return result;
 	}
-
+	const usageMode =
+		typeof basePrompts_result.usageMode !== "undefined"
+			? basePrompts_result.usageMode
+			: Number(mode);
 	// 根据用户选择的模式展开推进后续操作 specificPrompts
-	switch (basePrompts_result.usageMode) {
-		//  通用模式 选择项目模板 开箱即用
-		case UsageMode.UNIVERSALMODE:
-			specificPrompts_result = await handleSpecificPrompts(
-				UsageMode.UNIVERSALMODE,
-			);
-			break;
-		//  自定义模式 手动配置模板
-		case UsageMode.CUSTOMMODE:
-			specificPrompts_result = await handleSpecificPrompts(
-				UsageMode.CUSTOMMODE,
-			);
-			break;
-		// 外链接模式 使用其他脚手架 开展项目
-		case UsageMode.EXTERNALLINKSMODE:
-			specificPrompts_result = await handleSpecificPrompts(
-				UsageMode.EXTERNALLINKSMODE,
-			);
-			break;
-	}
-
-	/* 	console.log(basePrompts_result, "Base");
-	console.log(specificPrompts_result, "Specific"); */
+	const specificPrompts_result: SpecificResponse =
+		await handleSpecificPrompts(usageMode);
 
 	const overwrite = force || basePrompts_result.overwrite;
 	const { packageName } = basePrompts_result;
@@ -181,9 +161,8 @@ export async function create(
 		devDependencies: {},
 	});
 
-	handleFnMap.get(basePrompts_result.usageMode)(specificPrompts_result, {
+	handleFnMap.get(usageMode)(specificPrompts_result, {
 		root,
-		cwd,
 		argTemplate,
 		Pkg,
 		targetDir,

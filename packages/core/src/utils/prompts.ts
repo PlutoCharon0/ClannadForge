@@ -16,12 +16,6 @@ const universalMode_Prompts: ModeSpecificPromptGenerator = (
 	argTemplate: string,
 ) => [
 	{
-		type: "confirm",
-		name: "universalMode",
-		message: brighten("Confirm to use universalMode"),
-		initial: UsageMode.UNIVERSALMODE,
-	},
-	{
 		type: "select",
 		name: "projectType",
 		message: brighten("Select a project type:"),
@@ -81,12 +75,6 @@ const universalMode_Prompts: ModeSpecificPromptGenerator = (
 
 const customMode_Prompts: ModeSpecificPromptGenerator = () => [
 	{
-		type: "confirm",
-		name: "customMode",
-		message: brighten("Confirm to use customMode"),
-		initial: UsageMode.CUSTOMMODE,
-	},
-	{
 		type: "select",
 		name: "framework",
 		message: brighten("Select a framework:"),
@@ -137,12 +125,6 @@ const customMode_Prompts: ModeSpecificPromptGenerator = () => [
 	// TODO 考虑提供组件库使用选择交互 目前默认不配置
 ];
 const externalLinksMode_Prompts: ModeSpecificPromptGenerator = () => [
-	{
-		type: "confirm",
-		name: "externalLinksMode",
-		message: brighten("Confirm to use externalLinksMode"),
-		initial: UsageMode.EXTERNALLINKSMODE,
-	},
 	{
 		type: "select",
 		name: "cliType",
