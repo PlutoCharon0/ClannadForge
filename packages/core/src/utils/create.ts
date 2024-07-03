@@ -81,7 +81,6 @@ export async function create(
 		targetDir,
 	});
 
-	/* 核心逻辑 构建Generator类  搭配插件机制 借此展开渐进式的项目创建 */
 	function notifyProjectCreationTips(pkgManager, root, cwd) {
 		const cdProjectName = path.relative(cwd, root);
 		if (root !== cwd) {
@@ -196,7 +195,7 @@ export async function create(
 		TODO  template模板存储在本地 还是放在github远程仓库 通过网络请求的方式获取 ✔
 		TODO  构建插件机制
 		TODO  统一优化模板的构建方式 ✔
-		TODO  构建工程化配置的交互提示
+		TODO  构建工程化配置的交互提示 ✔
 		TODO  交互提示 配置文件的存放位置设计处理  单独放置 统一放置在package.json 待考虑
 		TODO  项目构建完毕的结束提示设计，抽离构建
 		TODO  构建自定义模式的预设本地存储  （拓展: 提供用户自定义模板的功能 ———— 利用插件机制）

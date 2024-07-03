@@ -137,13 +137,17 @@ export class Generator {
 	}
 	generateTS_DEV(pkg) {
 		const pkgContentWithTs = this.Pkg.content.extendWithTs;
-		console.log(this.Pkg.content, pkgContentWithTs, "pkgContentWithTs");
-		pkg.updatePKG_Content_filed("scripts", {
-			...pkgContentWithTs.scripts,
-		});
-		pkg.updatePKG_Content_filed("devDependencies", {
-			...pkgContentWithTs.devDependencies,
-		});
+		pkg.updatePKG_Content_fields(
+			["scripts", "devDependencies"],
+			[
+				{
+					...pkgContentWithTs.scripts,
+				},
+				{
+					...pkgContentWithTs.devDependencies,
+				},
+			],
+		);
 	}
 	convertJsToTs(dir: string) {
 		function traverse(directory: string) {
