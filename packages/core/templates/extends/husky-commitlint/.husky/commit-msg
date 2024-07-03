@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+echo 'running commit-msg checks ...'
+
+# check_commit_msg.sh 用于校验 Git 提交信息是否符合规定格式的脚本。
+# 它可以在 commit-msg 钩子中，被用来确保提交信息遵循一定的命名规范，从而帮助维护项目的提交历史清晰和一致。
+./scripts/check_commit_msg.sh "$1"

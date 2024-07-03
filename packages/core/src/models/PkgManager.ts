@@ -22,38 +22,36 @@ export class PackageJsonManager {
 		Object.assign(this.content, ...content);
 		return this;
 	}
-	updatePKG_Content_fileds(filed: string[], value: object[]) {
+	updatePKG_Content_fields(field: string[], value: object[]) {
 		// 确保value也是数组且长度相同
-		if (filed.length === value.length) {
-			for (let i = 0; i < filed.length; i++) {
-				this.updatePKG_SingleField(filed[i], value[i]);
+		if (field.length === value.length) {
+			for (let i = 0; i < field.length; i++) {
+				this.updatePKG_SingleField(field[i], value[i]);
 			}
 		} else {
 			throw new Error(
-				"Value should be an array with the same length as filed.",
+				"Value should be an array with the same length as field.",
 			);
 		}
 		return this;
 	}
-	updatePKG_SingleField(filed: string, value: string | object) {
-		// 检查filed是否是有效的属性名
-		if (!(filed in this.content)) {
-			console.warn(
-				`Warning: Attempted to update a non-existent field: ${filed}`,
-			);
-			return;
+	updatePKG_SingleField(field: string, value: string | object) {
+		// 如果field对应的属性不存在于this.content中，则添加该属性
+		if (!(field in this.content)) {
+			this.content[field] = value;
+			return this;
 		}
 
 		// 对于对象属性的更新，进行类型检查以确保安全赋值
 		if (
-			typeof this.content[filed] === "object" &&
-			this.content[filed] !== null &&
+			typeof this.content[field] === "object" &&
+			this.content[field] !== null &&
 			typeof value === "object" &&
 			value !== null
 		) {
-			this.content[filed] = { ...this.content[filed], ...value };
+			this.content[field] = { ...this.content[field], ...value };
 		} else {
-			this.content[filed] = value;
+			this.content[field] = value;
 		}
 		return this;
 	}

@@ -28,3 +28,7 @@ export type SpecificResponse = prompts.Answers<
 	| "configs"
 	| "needTypescript"
 >;
+
+export type EngineeringResponse = prompts.Answers<
+	"isUseEngineeringConfiguration" | "engineeringConfigs"
+>;

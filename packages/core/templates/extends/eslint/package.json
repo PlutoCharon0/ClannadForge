@@ -1,0 +1,12 @@
+{
+	"scripts": {
+		"lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix "
+	},
+	"devDependencies": {
+		"eslint": "^8.57.0",
+		"globals": "^15.1.0",
+		"@eslint/js": "^9.2.0",
+		"typescript-eslint": "^7.8.0",
+		"eslint-config-prettier": "^9.1.0"
+	}
+}

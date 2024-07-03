@@ -1,4 +1,4 @@
 packages:
   - 'packages/*' # 工作空间
   - 'apps/*' # 文档
-
+  - 'clannad-project'

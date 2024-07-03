@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+echo 'running pre-commit checks ...'
+
+npx lint-staged -q
+
+
+echo -e 'pre-commit success!\n'

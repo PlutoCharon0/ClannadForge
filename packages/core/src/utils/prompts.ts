@@ -7,11 +7,87 @@ import {
 	getTemplate,
 	getCustomConfig,
 } from "./constant";
-const { brighten, info } = colors;
+import {
+	formatPackageName,
+	formatTargetDir,
+	isDirOrFileEmpty,
+	isValidPackageName,
+} from "@clannadforage/utils";
 // () => [] 的设计 是为了方便声明交互提示对象时可以与外界值进行联动
 type ModeSpecificPromptGenerator = (
 	argTemplate?: string,
 ) => prompts.PromptObject[];
+
+// TODO 完善类型提示
+const { brighten, info, random, error } = colors;
+export const base_Prompts = (payload) => {
+	const { argTargetDir, defaultTargetDir, force, mode, getProjectName } =
+		payload;
+	let targetDir = payload.targetDir;
+	return [
+		{
+			type: argTargetDir ? null : "text",
+			name: "projectName",
+			message: brighten("Project name"),
+			initial: defaultTargetDir, // 用户未指定选项参数时 targetDir指向默认值
+			onState: (state) => {
+				targetDir = formatTargetDir(state.value) || defaultTargetDir;
+			},
+		},
+		{
+			type: () => (isDirOrFileEmpty(targetDir) || force ? null : "select"),
+			name: "overwrite",
+			message: () =>
+				(targetDir === "."
+					? brighten("Current directory")
+					: `Target directory "${brighten(targetDir)}"`) +
+				` is not empty. Please choose how to proceed:`,
+			choices: [
+				{
+					title: "Overwrite targetDir and continue",
+					value: "yes",
+				},
+				{
+					title: "Cancel operation",
+					value: "no",
+				},
+				{
+					title: "Ignore files and continue",
+					value: "ignore",
+				},
+			],
+		},
+		{
+			type: isValidPackageName(getProjectName()) ? null : "text",
+			name: "packageName",
+			message: brighten("Modify your packageName"),
+			initial: formatPackageName(getProjectName()),
+			validate: (value) => {
+				return isValidPackageName(value) || "\n Invalid package.json.name";
+			},
+		},
+		{
+			type: () => (mode ? null : "select"),
+			name: "usageMode",
+			message: brighten("Select the usage mode you expect"),
+			choices: [
+				{
+					title: "Easy to use universal templates",
+					value: UsageMode.UNIVERSALMODE,
+				},
+				{
+					title: "Manually select features",
+					value: UsageMode.CUSTOMMODE,
+				},
+				{
+					title: "use other Cli to start your project",
+					value: UsageMode.EXTERNALLINKSMODE,
+				},
+			],
+		},
+	];
+};
+
 const universalMode_Prompts: ModeSpecificPromptGenerator = (
 	argTemplate: string,
 ) => [
@@ -148,6 +224,53 @@ const usageModeMap = new Map<UsageMode, ModeSpecificPromptGenerator>([
 	[UsageMode.EXTERNALLINKSMODE, externalLinksMode_Prompts],
 ]);
 
-export function getPrompts(usageMode: UsageMode) {
+export const engineering_Prompts = [
+	{
+		type: "confirm",
+		name: "isUseEngineeringConfiguration",
+		message: brighten("Is engineering configuration configured"),
+		initial: false,
+	},
+	{
+		type: (isUseEngineeringConfiguration) =>
+			isUseEngineeringConfiguration ? "multiselect" : null,
+		name: "engineeringConfigs",
+		message: brighten("Select relevant configurations"),
+		choices: [
+			{
+				title: random("Eslint"),
+				value: "eslint",
+			},
+			{
+				title: random("Prettier"),
+				value: "prettier",
+			},
+			{
+				title: random("Husky-Commitlint"),
+				value: "husky-commitlint",
+			},
+		],
+	},
+];
+export async function handlePrompts(
+	promptsList: any,
+	isSpecific: boolean = false,
+	mode?: UsageMode,
+) {
+	let result;
+	if (isSpecific) promptsList = [...getPrompts(mode)];
+	try {
+		(result as prompts.Answers<string>) = await prompts(promptsList, {
+			onCancel: () => {
+				throw new Error(error("✖" + " Operation cancelled"));
+			},
+		});
+	} catch (cancelled: any) {
+		console.log(colors.error(cancelled.message));
+		process.exit(1);
+	}
+	return result;
+}
+function getPrompts(usageMode: UsageMode) {
 	return usageModeMap.get(usageMode)();
 }

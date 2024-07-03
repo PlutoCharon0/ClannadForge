@@ -24,7 +24,7 @@ export class Generator {
 		this.promptsResults = promptsResults;
 		this.templateDir = path.resolve(
 			__dirname,
-			`../../core/templates/base-${promptsResults.framework}`,
+			`../../core/templates/base/${promptsResults.framework}`,
 		);
 		this.ejsTemplates = new Map();
 		this.ejsDatas = new Map();
@@ -170,28 +170,5 @@ export class Generator {
 			}
 		}
 		traverse(dir);
-	}
-
-	assignmentEjsDataStructure(data: any, values: any[]) {
-		let valueIndex = 0;
-		for (const key in data) {
-			if (typeof data[key] === "object") {
-				for (const prop in data[key]) {
-					if (
-						typeof data[key][prop] === "string" &&
-						data[key][prop].startsWith("$")
-					) {
-						if (valueIndex < values.length) {
-							data[key][prop] = values[valueIndex++];
-						} else {
-							console.warn(
-								`没有足够的值来替换所有占位符，${key}的EJS数据未被赋值.`,
-							);
-							break;
-						}
-					}
-				}
-			}
-		}
 	}
 }

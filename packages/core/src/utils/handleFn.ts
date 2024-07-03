@@ -72,11 +72,11 @@ function handleCustomCommand(customCommand: string, targetDir: string) {
 			arg.replace("TARGET_DIR", targetDir),
 		);
 		// spawn.sync 开启一个子进程执行自定义安装命令
-		const { status } = spawn.sync(command, replacedArgs, {
+		/* const { status } =  */ spawn.sync(command, replacedArgs, {
 			stdio: "inherit",
 		});
-		// 退出当前进程，状态码为1执行命令的结果状态码（若未提供则默认为0）
-		process.exit(status ?? 0);
+		/* 	// 退出当前进程，状态码为1执行命令的结果状态码（若未提供则默认为0）
+		process.exit(status ?? 0); */
 	}
 }
 function handle_universalModel(
@@ -84,31 +84,34 @@ function handle_universalModel(
 	options: Options,
 ) {
 	// TODO SWC的处理
-	const { framework, variant, projectType } = promptsResults;
-	const { root, argTemplate, targetDir, Pkg } = options;
-	// 根据参数优先级 确定最终选择的模板
-	const template: string = variant || framework?.name || argTemplate;
-	// 获取自定义模板安装指令
-	const { customCommand } =
-		getFramework(projectType)
-			.flatMap((f) => f.variants)
-			.find((v) => v.name === template) ?? {};
+	return new Promise((resolve) => {
+		const { framework, variant, projectType } = promptsResults;
+		const { root, argTemplate, targetDir, Pkg } = options;
+		// 根据参数优先级 确定最终选择的模板
+		const template: string = variant || framework?.name || argTemplate;
+		// 获取自定义模板安装指令
+		const { customCommand } =
+			getFramework(projectType)
+				.flatMap((f) => f.variants)
+				.find((v) => v.name === template) ?? {};
 
-	// 判断是否存在自定义模板安装指令 根据用户的包管理工具来判断用于安装模板的包类型 并展开安装
-	handleCustomCommand(customCommand, targetDir);
+		// 判断是否存在自定义模板安装指令 根据用户的包管理工具来判断用于安装模板的包类型 并展开安装
+		handleCustomCommand(customCommand, targetDir);
 
-	const templateDirMap = {
-		[ProjectType.WEB]: "web",
-		[ProjectType.UI_LIBRARY]: "ui-library",
-		[ProjectType.STATIC_SITE]: "static-site",
-	};
-	const templateDir = `https://github.com:PlutoCharon0/ClannadForage_templates#${templateDirMap[projectType]}_${template}`;
-	downloadTemplate(templateDir, root).then(() => {
-		const templatePkgContent = Pkg.readPKG_Content_path(Pkg.path);
-		const packageName = Pkg.content.name;
-		Pkg.updatePKG_Content(templatePkgContent)
-			.updatePKG_SingleField("name", packageName)
-			.createPKG_File();
+		const templateDirMap = {
+			[ProjectType.WEB]: "web",
+			[ProjectType.UI_LIBRARY]: "ui-library",
+			[ProjectType.STATIC_SITE]: "static-site",
+		};
+		const templateDir = `https://github.com:PlutoCharon0/ClannadForage_templates#${templateDirMap[projectType]}_${template}`;
+		downloadTemplate(templateDir, root).then(() => {
+			const templatePkgContent = Pkg.readPKG_Content_path(Pkg.path);
+			const packageName = Pkg.content.name;
+			Pkg.updatePKG_Content(templatePkgContent)
+				.updatePKG_SingleField("name", packageName)
+				.createPKG_File();
+			resolve({ done: true });
+		});
 	});
 }
 
